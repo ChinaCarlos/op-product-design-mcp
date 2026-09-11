@@ -1,0 +1,406 @@
+/* OP 原型排版：卡片 8px，控件 2px（贴近 antd 4 OP，而不是 antd 5 大圆角） */
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-size: var(--op-font-size-base);
+  line-height: var(--op-line-height);
+  color: var(--op-color-text);
+  background: var(--op-color-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.op-proto {
+  min-height: 100vh;
+  background: var(--op-color-bg);
+  color: var(--op-color-text);
+}
+
+.op-proto a,
+.op-proto button,
+.op-proto [role='button'],
+.op-proto .ant-btn,
+.op-proto .ant-pagination-item,
+.op-proto .op-tab-item {
+  cursor: pointer;
+}
+
+/* —— 预览文档头（不是业务页标题） —— */
+.op-doc-meta {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--op-space-lg) var(--op-space-lg) 0;
+}
+
+.op-doc-meta h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--op-color-text);
+}
+
+.op-doc-meta p {
+  margin: 6px 0 0;
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text-secondary);
+}
+
+.op-doc-meta .op-doc-flags {
+  display: flex;
+  align-items: center;
+  gap: var(--op-space-sm);
+  margin-top: var(--op-space-sm);
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text-secondary);
+}
+
+/* —— 页面壳 —— */
+.op-page-nav-layout,
+.op-page-layout {
+  box-sizing: border-box;
+  min-height: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--op-space-lg);
+  background: var(--op-color-bg);
+}
+
+.op-page-nav-body {
+  margin-top: var(--op-space-md);
+  min-width: 0;
+}
+
+.op-top-nav {
+  display: flex;
+  align-items: center;
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  box-shadow: var(--op-shadow-sm);
+  padding: 0 var(--op-space-md);
+  border-radius: var(--op-radius-md);
+}
+
+.op-tab-item {
+  padding: 0 20px;
+  line-height: 46px;
+  font-size: 16px;
+  color: var(--op-color-text);
+  border-bottom: 2px solid transparent;
+  user-select: none;
+}
+
+.op-tab-item:first-child {
+  padding-left: 12px;
+}
+
+.op-tab-item.is-active {
+  color: var(--op-color-primary);
+  border-bottom-color: var(--op-color-primary);
+  font-weight: 600;
+}
+
+/* —— 筛选：字段与查询同一流式折行；查询在最后一行，右对齐（同「新建」） —— */
+.op-filter-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 8px;
+  padding: 14px 16px;
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  border-radius: var(--op-radius-md);
+  box-shadow: var(--op-shadow-sm);
+}
+
+.op-filter-fields {
+  display: contents;
+}
+
+.op-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.op-filter-label {
+  flex-shrink: 0;
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text);
+  line-height: 32px;
+  white-space: nowrap;
+}
+
+.op-filter-action {
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 88px;
+}
+
+/* —— 表卡 —— */
+.op-table-card {
+  margin-top: var(--op-space-md);
+  padding: 14px 16px 16px;
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  border-radius: var(--op-radius-md);
+  box-shadow: var(--op-shadow-card);
+}
+
+.op-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  min-height: 32px;
+}
+
+.op-table-toolbar-title {
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text-secondary);
+  line-height: 1.5;
+}
+
+.op-table-toolbar-extra {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--op-space-sm);
+}
+
+.op-table-toolbar--extra-only {
+  justify-content: flex-end;
+}
+
+.op-table-toolbar--extra-only .op-table-toolbar-extra {
+  flex: 0 1 auto;
+}
+
+.op-proto .ant-table {
+  font-size: var(--op-font-size-base);
+}
+
+.op-proto .ant-table-thead > tr > th {
+  background: var(--op-color-table-head) !important;
+  color: var(--op-color-text);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.op-proto .ant-table-tbody > tr > td {
+  color: var(--op-color-text);
+}
+
+.op-table-card .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+.op-list-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 24px;
+}
+
+.op-break {
+  word-break: break-word;
+}
+
+/* —— 操作列 —— */
+.op-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* —— 分页靠左 + 一条顶线 —— */
+.op-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--op-space-sm);
+  margin-top: var(--op-space-md);
+  padding-top: var(--op-space-md);
+  border-top: 1px solid var(--op-color-border-light);
+}
+
+.op-proto .ant-pagination-item,
+.op-proto .ant-pagination-prev .ant-pagination-item-link,
+.op-proto .ant-pagination-next .ant-pagination-item-link {
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-pagination-item-active {
+  border-color: var(--op-color-primary);
+}
+
+.op-proto .ant-pagination-item-active a {
+  color: var(--op-color-primary);
+}
+
+/* —— 弹窗表单 / 只读预览 —— */
+.op-proto .ant-modal-content {
+  border-radius: var(--op-radius-md);
+  overflow: hidden;
+}
+
+.op-proto .ant-modal-header {
+  margin: 0;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--op-color-border-light);
+}
+
+.op-proto .ant-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--op-color-text);
+}
+
+.op-proto .ant-modal-body {
+  padding: 24px 24px 8px;
+}
+
+.op-proto .ant-modal-footer {
+  margin: 0;
+  padding: 10px 24px 16px;
+  border-top: 1px solid var(--op-color-border-light);
+}
+
+.op-proto .ant-form-item {
+  margin-bottom: var(--op-space-md);
+}
+
+.op-modal-form-preview-card.ant-card {
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  border-radius: var(--op-radius-md);
+  box-shadow: var(--op-shadow-sm);
+}
+
+.op-modal-form-preview-card .ant-card-body {
+  padding: 4px 0;
+}
+
+.op-modal-form-preview-card .ant-descriptions-item-label {
+  width: 96px;
+  color: var(--op-color-text-secondary);
+  font-weight: 400;
+}
+
+.op-modal-form-preview-card .ant-descriptions-item-content {
+  color: var(--op-color-text);
+  word-break: break-word;
+}
+
+.op-modal-form-preview-emphasis {
+  font-weight: 600;
+  color: var(--op-color-text);
+}
+
+/* —— 控件：2px 圆角、32px 高（覆盖 antd 5） —— */
+.op-proto .ant-btn {
+  height: var(--op-control-height);
+  padding: 0 15px;
+  font-size: 14px;
+  border-radius: var(--op-radius-control);
+  box-shadow: none;
+}
+
+.op-proto .ant-btn-sm {
+  height: var(--op-control-height-sm);
+  padding: 0 7px;
+  font-size: 14px;
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost) {
+  color: #fff;
+  background: var(--op-color-btn-primary);
+  border-color: var(--op-color-btn-primary);
+  box-shadow: none;
+}
+
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):hover,
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):focus {
+  color: #fff;
+  background: var(--op-color-btn-primary-hover);
+  border-color: var(--op-color-btn-primary-hover);
+}
+
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):active {
+  color: #fff;
+  background: var(--op-color-btn-primary-active);
+  border-color: var(--op-color-btn-primary-active);
+}
+
+/* 不要同时给 .ant-input 和 .ant-input-affix-wrapper 设边框+高度，否则 allowClear 会缺边 */
+.op-proto .ant-input-affix-wrapper {
+  height: var(--op-control-height);
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: var(--op-radius-control);
+  display: inline-flex;
+  align-items: center;
+}
+
+.op-proto .ant-input-affix-wrapper > .ant-input,
+.op-proto .ant-input-affix-wrapper .ant-input {
+  height: auto !important;
+  min-height: 0;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+.op-proto .ant-input:not(textarea) {
+  height: var(--op-control-height);
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-input-number,
+.op-proto .ant-picker {
+  height: var(--op-control-height);
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-select-selector {
+  border-radius: var(--op-radius-control) !important;
+}
+
+.op-proto .ant-select-single .ant-select-selector {
+  height: var(--op-control-height) !important;
+}
+
+.op-proto .ant-select-single .ant-select-selection-item,
+.op-proto .ant-select-single .ant-select-selection-placeholder {
+  line-height: 30px !important;
+}
+
+.op-proto .ant-radio-button-wrapper {
+  border-radius: 0;
+}
+
+.op-proto .ant-radio-button-wrapper:first-child {
+  border-radius: var(--op-radius-control) 0 0 var(--op-radius-control);
+}
+
+.op-proto .ant-radio-button-wrapper:last-child {
+  border-radius: 0 var(--op-radius-control) var(--op-radius-control) 0;
+}
+
+/* 颜色覆盖见 theme.css（必须全局，否则 body 上的弹层仍是 antd 蓝） */

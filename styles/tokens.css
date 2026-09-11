@@ -1,0 +1,34 @@
+/* OP 原型令牌（自包含副本） */
+
+:root,
+.op-proto {
+  --op-color-bg: #f5f7fa;
+  --op-color-surface: #ffffff;
+  --op-color-primary: #f85515;
+  --op-color-primary-hover: #ff6b2e;
+  --op-color-btn-primary: #6366f1;
+  --op-color-btn-primary-hover: #818cf8;
+  --op-color-btn-primary-active: #4f46e5;
+  --op-color-radio: #ff8f45;
+  --op-color-radio-hover: #ffa05c;
+  --op-color-radio-active: #f07a30;
+  --op-color-text: #1f2937;
+  --op-color-text-secondary: #6b7280;
+  --op-color-border: #e5e7eb;
+  --op-color-border-light: #f0f2f5;
+  --op-color-table-head: #fafafa;
+  --op-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --op-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+  --op-radius-control: 2px;
+  --op-radius-md: 8px;
+  --op-radius-lg: 12px;
+  --op-control-height: 32px;
+  --op-control-height-sm: 24px;
+  --op-space-sm: 8px;
+  --op-space-md: 16px;
+  --op-space-lg: 24px;
+  --op-font-size-sm: 13px;
+  --op-font-size-base: 14px;
+  --op-line-height: 1.5;
+}

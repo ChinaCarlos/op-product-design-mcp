@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>公告管理 · OP 原型</title>
+    <link rel="stylesheet" href="https://unpkg.com/antd@4.24.8/dist/antd.min.css" />
+    <style>
+/* OP 原型令牌（自包含副本） */
+
+:root,
+.op-proto {
+  --op-color-bg: #f5f7fa;
+  --op-color-surface: #ffffff;
+  --op-color-primary: #f85515;
+  --op-color-primary-hover: #ff6b2e;
+  --op-color-btn-primary: #6366f1;
+  --op-color-btn-primary-hover: #818cf8;
+  --op-color-btn-primary-active: #4f46e5;
+  --op-color-radio: #ff8f45;
+  --op-color-radio-hover: #ffa05c;
+  --op-color-radio-active: #f07a30;
+  --op-color-text: #1f2937;
+  --op-color-text-secondary: #6b7280;
+  --op-color-border: #e5e7eb;
+  --op-color-border-light: #f0f2f5;
+  --op-color-table-head: #fafafa;
+  --op-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --op-shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06),
+    0 4px 12px rgba(15, 23, 42, 0.04);
+  --op-radius-control: 2px;
+  --op-radius-md: 8px;
+  --op-radius-lg: 12px;
+  --op-control-height: 32px;
+  --op-control-height-sm: 24px;
+  --op-space-sm: 8px;
+  --op-space-md: 16px;
+  --op-space-lg: 24px;
+  --op-font-size-sm: 13px;
+  --op-font-size-base: 14px;
+  --op-line-height: 1.5;
+}
+
+/* OP 原型主题（全局，不要包在 .op-proto 里）
+ * antd 4 CDN 默认 @primary-color = #1890ff。
+ * Tab / Select / Radio / 日期面板 / 下拉都要在这里盖掉。
+ * 弹层 portal 到 body，父级限定选择器无效。
+ *
+ * 映射：
+ *   主题橙 #f85515 — Tab、链接、焦点、分页、Select 选中、日历选中
+ *   主按钮靛蓝 #6366f1 — 仅 type=primary 实心按钮
+ *   暖橙 #ff8f45 — Radio / Checkbox / Switch
+ */
+
+:root {
+  --op-antd-primary: #f85515;
+  --op-antd-primary-hover: #ff6b2e;
+  --op-antd-primary-active: #e04a10;
+  --op-antd-primary-shadow: rgba(248, 85, 21, 0.2);
+  --op-antd-primary-bg: #fff7ed;
+  --op-antd-radio: #ff8f45;
+  --op-antd-radio-hover: #ffa05c;
+  --op-antd-radio-active: #f07a30;
+  --op-antd-radio-shadow: rgba(255, 143, 69, 0.2);
+}
+
+a {
+  color: var(--op-antd-primary);
+}
+a:hover {
+  color: var(--op-antd-primary-hover);
+}
+
+/* ========== 按钮 ========== */
+.ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost) {
+  color: #fff;
+  background: var(--op-color-btn-primary, #6366f1);
+  border-color: var(--op-color-btn-primary, #6366f1);
+  text-shadow: none;
+  box-shadow: none;
+}
+.ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):hover,
+.ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):focus {
+  color: #fff;
+  background: var(--op-color-btn-primary-hover, #818cf8);
+  border-color: var(--op-color-btn-primary-hover, #818cf8);
+}
+.ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):active {
+  color: #fff;
+  background: var(--op-color-btn-primary-active, #4f46e5);
+  border-color: var(--op-color-btn-primary-active, #4f46e5);
+}
+.ant-btn-link {
+  color: var(--op-antd-primary);
+}
+.ant-btn-link:hover,
+.ant-btn-link:focus {
+  color: var(--op-antd-primary-hover);
+}
+.ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):hover,
+.ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):focus {
+  color: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-btn-dangerous:hover,
+.ant-btn-dangerous:focus {
+  color: #ff4d4f;
+  border-color: #ff4d4f;
+}
+.ant-btn-background-ghost.ant-btn-primary {
+  color: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-btn-background-ghost.ant-btn-primary:hover,
+.ant-btn-background-ghost.ant-btn-primary:focus {
+  color: var(--op-antd-primary-hover);
+  border-color: var(--op-antd-primary-hover);
+}
+
+/* ========== Tab（antd Tabs + 横向 Menu） ========== */
+.ant-tabs-tab:hover,
+.ant-tabs-tab:hover .ant-tabs-tab-btn {
+  color: var(--op-antd-primary-hover);
+}
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn,
+.ant-tabs-tab-btn:focus,
+.ant-tabs-tab-remove:hover {
+  color: var(--op-antd-primary);
+}
+.ant-tabs-ink-bar,
+.ant-tabs-ink-bar-animated {
+  background: var(--op-antd-primary);
+}
+.ant-tabs-nav .ant-tabs-tab-active {
+  color: var(--op-antd-primary);
+}
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active,
+.ant-tabs-card > div > .ant-tabs-nav .ant-tabs-tab-active {
+  color: var(--op-antd-primary);
+  border-bottom-color: #fff;
+}
+.ant-tabs-card.ant-tabs-top > .ant-tabs-nav .ant-tabs-tab-active {
+  border-bottom-color: #fff;
+}
+
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item:hover,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu:hover,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-active,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-active,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-open,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-open,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-item-selected,
+.ant-menu-horizontal:not(.ant-menu-dark) > .ant-menu-submenu-selected {
+  color: var(--op-antd-primary);
+  border-bottom-color: var(--op-antd-primary);
+}
+.ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected,
+.ant-menu-item-selected a,
+.ant-menu-item-selected a:hover,
+.ant-menu-vertical .ant-menu-item::after,
+.ant-menu-vertical-left .ant-menu-item::after,
+.ant-menu-vertical-right .ant-menu-item::after,
+.ant-menu-inline .ant-menu-item::after {
+  color: var(--op-antd-primary);
+  border-right-color: var(--op-antd-primary);
+}
+.ant-menu-item:hover,
+.ant-menu-item-active,
+.ant-menu-submenu-title:hover,
+.ant-menu-submenu:hover > .ant-menu-submenu-title {
+  color: var(--op-antd-primary);
+}
+.ant-menu-item-selected {
+  background-color: var(--op-antd-primary-bg);
+}
+
+.op-tab-item.is-active,
+.op-tab-item:hover {
+  color: var(--op-antd-primary);
+}
+.op-tab-item.is-active {
+  border-bottom-color: var(--op-antd-primary);
+}
+
+/* ========== Select / TreeSelect / Cascader ========== */
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector,
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector,
+.ant-select-open .ant-select-selector {
+  border-color: var(--op-antd-primary) !important;
+}
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  box-shadow: 0 0 0 2px var(--op-antd-primary-shadow);
+}
+.ant-select-arrow,
+.ant-select-clear {
+  color: rgba(0, 0, 0, 0.45);
+}
+.ant-select-multiple .ant-select-selection-item {
+  background: var(--op-antd-primary-bg);
+  border-color: #fed7aa;
+}
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  color: var(--op-color-text, #1f2937);
+  font-weight: 600;
+  background-color: var(--op-antd-primary-bg);
+}
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: var(--op-antd-primary-bg);
+}
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) .ant-select-item-option-state,
+.ant-select-tree .ant-select-tree-node-selected,
+.ant-select-tree .ant-select-tree-node-content-wrapper.ant-select-tree-node-selected,
+.ant-select-tree .ant-select-tree-checkbox-checked .ant-select-tree-checkbox-inner {
+  color: var(--op-antd-primary);
+  background-color: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-select-tree .ant-select-tree-node-content-wrapper.ant-select-tree-node-selected {
+  background-color: var(--op-antd-primary-bg);
+  color: var(--op-color-text, #1f2937);
+}
+.ant-cascader-menu-item-active:not(.ant-cascader-menu-item-disabled),
+.ant-cascader-menu-item-active:not(.ant-cascader-menu-item-disabled):hover {
+  background: var(--op-antd-primary-bg);
+  font-weight: 600;
+}
+.ant-cascader-picker:focus .ant-cascader-input,
+.ant-cascader-picker-focused .ant-cascader-input {
+  border-color: var(--op-antd-primary);
+  box-shadow: 0 0 0 2px var(--op-antd-primary-shadow);
+}
+
+/* ========== Radio ========== */
+.ant-radio-wrapper:hover .ant-radio,
+.ant-radio-wrapper:hover .ant-radio-inner,
+.ant-radio:hover .ant-radio-inner,
+.ant-radio-input:focus + .ant-radio-inner {
+  border-color: var(--op-antd-radio-hover);
+}
+.ant-radio-input:focus + .ant-radio-inner {
+  box-shadow: 0 0 0 3px var(--op-antd-radio-shadow);
+}
+.ant-radio-checked .ant-radio-inner,
+.ant-radio-wrapper .ant-radio-checked .ant-radio-inner {
+  border-color: var(--op-antd-radio);
+}
+.ant-radio-checked .ant-radio-inner::after {
+  background-color: var(--op-antd-radio);
+}
+.ant-radio-checked::after {
+  border-color: var(--op-antd-radio);
+}
+.ant-radio-wrapper:hover .ant-radio-checked .ant-radio-inner,
+.ant-radio:hover .ant-radio-checked .ant-radio-inner {
+  border-color: var(--op-antd-radio-hover);
+}
+
+/* Radio.Button 描边 */
+.ant-radio-button-wrapper:hover {
+  color: var(--op-antd-radio-hover);
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  color: var(--op-antd-radio);
+  border-color: var(--op-antd-radio);
+  background: #fff;
+  box-shadow: -1px 0 0 0 var(--op-antd-radio);
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover,
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus {
+  color: var(--op-antd-radio-hover);
+  border-color: var(--op-antd-radio-hover);
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+  background-color: var(--op-antd-radio);
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child {
+  border-color: var(--op-antd-radio);
+}
+
+/* Radio.Group solid */
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  color: #fff;
+  background: var(--op-antd-radio);
+  border-color: var(--op-antd-radio);
+  box-shadow: -1px 0 0 0 var(--op-antd-radio);
+}
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover,
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):focus {
+  color: #fff;
+  background: var(--op-antd-radio-hover);
+  border-color: var(--op-antd-radio-hover);
+}
+.ant-radio-group-solid .ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+  background-color: var(--op-antd-radio);
+}
+
+/* ========== Checkbox ========== */
+.ant-checkbox-wrapper:hover .ant-checkbox-inner,
+.ant-checkbox:hover .ant-checkbox-inner,
+.ant-checkbox-input:focus + .ant-checkbox-inner {
+  border-color: var(--op-antd-radio-hover);
+}
+.ant-checkbox-input:focus + .ant-checkbox-inner {
+  box-shadow: 0 0 0 3px var(--op-antd-radio-shadow);
+}
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--op-antd-radio);
+  border-color: var(--op-antd-radio);
+}
+.ant-checkbox-checked::after {
+  border-color: var(--op-antd-radio);
+}
+.ant-checkbox-wrapper:hover .ant-checkbox-checked .ant-checkbox-inner,
+.ant-checkbox-checked:hover .ant-checkbox-inner {
+  background-color: var(--op-antd-radio-hover);
+  border-color: var(--op-antd-radio-hover);
+}
+.ant-checkbox-indeterminate .ant-checkbox-inner {
+  border-color: var(--op-antd-radio);
+}
+.ant-checkbox-indeterminate .ant-checkbox-inner::after {
+  background-color: var(--op-antd-radio);
+}
+
+/* ========== Switch ========== */
+.ant-switch.ant-switch-checked {
+  background: var(--op-antd-radio);
+}
+.ant-switch.ant-switch-checked:hover:not(.ant-switch-disabled) {
+  background: var(--op-antd-radio-hover);
+}
+.ant-switch.ant-switch-checked:focus,
+.ant-switch:focus {
+  box-shadow: 0 0 0 2px var(--op-antd-radio-shadow);
+}
+
+/* ========== Input / Number / Mentions ========== */
+.ant-input:hover,
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper:hover,
+.ant-input-affix-wrapper-focused,
+.ant-input-number:hover,
+.ant-input-number-focused,
+.ant-mentions:hover,
+.ant-mentions-focused,
+.ant-mentions-focused textarea {
+  border-color: var(--op-antd-primary) !important;
+}
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper-focused,
+.ant-input-number-focused,
+.ant-mentions-focused {
+  box-shadow: 0 0 0 2px var(--op-antd-primary-shadow);
+}
+.ant-input-affix-wrapper > input.ant-input:focus,
+.ant-input-affix-wrapper > input.ant-input:hover {
+  border: none !important;
+  box-shadow: none !important;
+}
+.ant-input-number-handler:hover .ant-input-number-handler-up-inner,
+.ant-input-number-handler:hover .ant-input-number-handler-down-inner {
+  color: var(--op-antd-primary);
+}
+
+/* ========== DatePicker ========== */
+.ant-picker:hover,
+.ant-picker-focused {
+  border-color: var(--op-antd-primary) !important;
+}
+.ant-picker-focused {
+  box-shadow: 0 0 0 2px var(--op-antd-primary-shadow);
+}
+.ant-picker-today-btn,
+.ant-picker-now-btn,
+.ant-picker-header-view button:hover,
+.ant-picker-ok {
+  color: var(--op-antd-primary);
+}
+.ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+  border-color: var(--op-antd-primary);
+}
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner {
+  background: var(--op-antd-primary);
+}
+.ant-picker-cell-in-view.ant-picker-cell-range-hover .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-hover-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-hover-end .ant-picker-cell-inner {
+  background: var(--op-antd-primary-bg);
+}
+.ant-picker-ranges .ant-picker-preset > .ant-tag-blue {
+  color: var(--op-antd-primary);
+  background: var(--op-antd-primary-bg);
+  border-color: #fed7aa;
+}
+
+/* ========== Pagination ========== */
+.ant-pagination-item:hover,
+.ant-pagination-item:hover a,
+.ant-pagination-prev:hover .ant-pagination-item-link,
+.ant-pagination-next:hover .ant-pagination-item-link,
+.ant-pagination-jump-prev .ant-pagination-item-container .ant-pagination-item-link-icon,
+.ant-pagination-jump-next .ant-pagination-item-container .ant-pagination-item-link-icon {
+  color: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-pagination-item-active,
+.ant-pagination-item-active:hover {
+  border-color: var(--op-antd-primary) !important;
+}
+.ant-pagination-item-active a,
+.ant-pagination-item-active:hover a {
+  color: var(--op-antd-primary) !important;
+}
+.ant-pagination-options-quick-jumper input:hover,
+.ant-pagination-options-quick-jumper input:focus {
+  border-color: var(--op-antd-primary);
+}
+
+/* ========== 其它常用（Spin / Slider / Steps / Transfer / Tree / Tag / Upload） ========== */
+.ant-spin-dot-item {
+  background-color: var(--op-antd-primary);
+}
+.ant-slider-track,
+.ant-slider-handle {
+  background-color: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-slider-handle:focus {
+  box-shadow: 0 0 0 5px var(--op-antd-primary-shadow);
+}
+.ant-slider:hover .ant-slider-track {
+  background-color: var(--op-antd-primary-hover);
+}
+.ant-steps-item-process .ant-steps-item-icon {
+  background: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-steps-item-finish .ant-steps-item-icon {
+  border-color: var(--op-antd-primary);
+}
+.ant-steps-item-finish .ant-steps-item-icon > .ant-steps-icon {
+  color: var(--op-antd-primary);
+}
+.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-tail::after,
+.ant-steps-item-finish > .ant-steps-item-container > .ant-steps-item-content > .ant-steps-item-title::after {
+  background-color: var(--op-antd-primary);
+}
+.ant-transfer-list-content-item-checked,
+.ant-transfer-list-content-item:not(.ant-transfer-list-content-item-disabled):hover {
+  background: var(--op-antd-primary-bg);
+}
+.ant-tree .ant-tree-node-content-wrapper.ant-tree-node-selected,
+.ant-tree.ant-tree-directory .ant-tree-child-tree .ant-tree-node-content-wrapper.ant-tree-node-selected {
+  background: var(--op-antd-primary-bg);
+}
+.ant-tree .ant-tree-checkbox-checked .ant-tree-checkbox-inner {
+  background-color: var(--op-antd-radio);
+  border-color: var(--op-antd-radio);
+}
+.ant-tag-blue,
+.ant-tag-processing {
+  color: var(--op-antd-primary);
+  background: var(--op-antd-primary-bg);
+  border-color: #fed7aa;
+}
+.ant-upload.ant-upload-select-picture-card:hover,
+.ant-upload-drag:hover,
+.ant-upload-list-item-info .anticon-delete:hover,
+.ant-upload-list-item-card-actions .anticon:hover {
+  border-color: var(--op-antd-primary);
+  color: var(--op-antd-primary);
+}
+.ant-progress-bg,
+.ant-progress-success-bg {
+  background-color: var(--op-antd-primary);
+}
+.ant-badge-status-processing {
+  background: var(--op-antd-primary);
+}
+.ant-timeline-item-head-blue {
+  color: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-anchor-ink-ball,
+.ant-anchor-link-active > .ant-anchor-link-title {
+  color: var(--op-antd-primary);
+  border-color: var(--op-antd-primary);
+}
+.ant-dropdown-menu-item-selected,
+.ant-dropdown-menu-item-selected > a,
+.ant-dropdown-menu-submenu-title-selected {
+  color: var(--op-antd-primary);
+  background-color: var(--op-antd-primary-bg);
+}
+.ant-table-filter-trigger.active,
+.ant-table-filter-dropdown .ant-dropdown-menu-item-selected,
+.ant-table-column-sorter-up.active,
+.ant-table-column-sorter-down.active {
+  color: var(--op-antd-primary);
+}
+.ant-form-item-has-error .ant-input:focus,
+.ant-form-item-has-error .ant-input-affix-wrapper-focused {
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+/* OP 原型排版：卡片 8px，控件 2px（贴近 antd 4 OP，而不是 antd 5 大圆角） */
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-size: var(--op-font-size-base);
+  line-height: var(--op-line-height);
+  color: var(--op-color-text);
+  background: var(--op-color-bg);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.op-proto {
+  min-height: 100vh;
+  background: var(--op-color-bg);
+  color: var(--op-color-text);
+}
+
+.op-proto a,
+.op-proto button,
+.op-proto [role='button'],
+.op-proto .ant-btn,
+.op-proto .ant-pagination-item,
+.op-proto .op-tab-item {
+  cursor: pointer;
+}
+
+/* —— 预览文档头（不是业务页标题） —— */
+.op-doc-meta {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--op-space-lg) var(--op-space-lg) 0;
+}
+
+.op-doc-meta h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--op-color-text);
+}
+
+.op-doc-meta p {
+  margin: 6px 0 0;
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text-secondary);
+}
+
+.op-doc-meta .op-doc-flags {
+  display: flex;
+  align-items: center;
+  gap: var(--op-space-sm);
+  margin-top: var(--op-space-sm);
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text-secondary);
+}
+
+/* —— 页面壳 —— */
+.op-page-nav-layout,
+.op-page-layout {
+  box-sizing: border-box;
+  min-height: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--op-space-lg);
+  background: var(--op-color-bg);
+}
+
+.op-page-nav-body {
+  margin-top: var(--op-space-md);
+  min-width: 0;
+}
+
+.op-top-nav {
+  display: flex;
+  align-items: center;
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  box-shadow: var(--op-shadow-sm);
+  padding: 0 var(--op-space-md);
+  border-radius: var(--op-radius-md);
+}
+
+.op-tab-item {
+  padding: 0 20px;
+  line-height: 46px;
+  font-size: 16px;
+  color: var(--op-color-text);
+  border-bottom: 2px solid transparent;
+  user-select: none;
+}
+
+.op-tab-item:first-child {
+  padding-left: 12px;
+}
+
+.op-tab-item.is-active {
+  color: var(--op-color-primary);
+  border-bottom-color: var(--op-color-primary);
+  font-weight: 600;
+}
+
+/* —— 筛选：字段与查询同一流式折行；查询在最后一行，右对齐（同「新建」） —— */
+.op-filter-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 8px;
+  padding: 14px 16px;
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  border-radius: var(--op-radius-md);
+  box-shadow: var(--op-shadow-sm);
+}
+
+.op-filter-fields {
+  display: contents;
+}
+
+.op-filter-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.op-filter-label {
+  flex-shrink: 0;
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text);
+  line-height: 32px;
+  white-space: nowrap;
+}
+
+.op-filter-action {
+  margin-left: auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-width: 88px;
+}
+
+/* —— 表卡 —— */
+.op-table-card {
+  margin-top: var(--op-space-md);
+  padding: 14px 16px 16px;
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  border-radius: var(--op-radius-md);
+  box-shadow: var(--op-shadow-card);
+}
+
+.op-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  min-height: 32px;
+}
+
+.op-table-toolbar-title {
+  font-size: var(--op-font-size-sm);
+  color: var(--op-color-text-secondary);
+  line-height: 1.5;
+}
+
+.op-table-toolbar-extra {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--op-space-sm);
+}
+
+.op-table-toolbar--extra-only {
+  justify-content: flex-end;
+}
+
+.op-table-toolbar--extra-only .op-table-toolbar-extra {
+  flex: 0 1 auto;
+}
+
+.op-proto .ant-table {
+  font-size: var(--op-font-size-base);
+}
+
+.op-proto .ant-table-thead > tr > th {
+  background: var(--op-color-table-head) !important;
+  color: var(--op-color-text);
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.op-proto .ant-table-tbody > tr > td {
+  color: var(--op-color-text);
+}
+
+.op-table-card .ant-table-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+.op-list-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 24px;
+}
+
+.op-break {
+  word-break: break-word;
+}
+
+/* —— 操作列 —— */
+.op-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+/* —— 分页靠左 + 一条顶线 —— */
+.op-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--op-space-sm);
+  margin-top: var(--op-space-md);
+  padding-top: var(--op-space-md);
+  border-top: 1px solid var(--op-color-border-light);
+}
+
+.op-proto .ant-pagination-item,
+.op-proto .ant-pagination-prev .ant-pagination-item-link,
+.op-proto .ant-pagination-next .ant-pagination-item-link {
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-pagination-item-active {
+  border-color: var(--op-color-primary);
+}
+
+.op-proto .ant-pagination-item-active a {
+  color: var(--op-color-primary);
+}
+
+/* —— 弹窗表单 / 只读预览 —— */
+.op-proto .ant-modal-content {
+  border-radius: var(--op-radius-md);
+  overflow: hidden;
+}
+
+.op-proto .ant-modal-header {
+  margin: 0;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--op-color-border-light);
+}
+
+.op-proto .ant-modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--op-color-text);
+}
+
+.op-proto .ant-modal-body {
+  padding: 24px 24px 8px;
+}
+
+.op-proto .ant-modal-footer {
+  margin: 0;
+  padding: 10px 24px 16px;
+  border-top: 1px solid var(--op-color-border-light);
+}
+
+.op-proto .ant-form-item {
+  margin-bottom: var(--op-space-md);
+}
+
+.op-modal-form-preview-card.ant-card {
+  background: var(--op-color-surface);
+  border: 1px solid var(--op-color-border-light);
+  border-radius: var(--op-radius-md);
+  box-shadow: var(--op-shadow-sm);
+}
+
+.op-modal-form-preview-card .ant-card-body {
+  padding: 4px 0;
+}
+
+.op-modal-form-preview-card .ant-descriptions-item-label {
+  width: 96px;
+  color: var(--op-color-text-secondary);
+  font-weight: 400;
+}
+
+.op-modal-form-preview-card .ant-descriptions-item-content {
+  color: var(--op-color-text);
+  word-break: break-word;
+}
+
+.op-modal-form-preview-emphasis {
+  font-weight: 600;
+  color: var(--op-color-text);
+}
+
+/* —— 控件：2px 圆角、32px 高（覆盖 antd 5） —— */
+.op-proto .ant-btn {
+  height: var(--op-control-height);
+  padding: 0 15px;
+  font-size: 14px;
+  border-radius: var(--op-radius-control);
+  box-shadow: none;
+}
+
+.op-proto .ant-btn-sm {
+  height: var(--op-control-height-sm);
+  padding: 0 7px;
+  font-size: 14px;
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost) {
+  color: #fff;
+  background: var(--op-color-btn-primary);
+  border-color: var(--op-color-btn-primary);
+  box-shadow: none;
+}
+
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):hover,
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):focus {
+  color: #fff;
+  background: var(--op-color-btn-primary-hover);
+  border-color: var(--op-color-btn-primary-hover);
+}
+
+.op-proto .ant-btn-primary:not(.ant-btn-dangerous):not(.ant-btn-background-ghost):active {
+  color: #fff;
+  background: var(--op-color-btn-primary-active);
+  border-color: var(--op-color-btn-primary-active);
+}
+
+/* 不要同时给 .ant-input 和 .ant-input-affix-wrapper 设边框+高度，否则 allowClear 会缺边 */
+.op-proto .ant-input-affix-wrapper {
+  height: var(--op-control-height);
+  padding-top: 0;
+  padding-bottom: 0;
+  border-radius: var(--op-radius-control);
+  display: inline-flex;
+  align-items: center;
+}
+
+.op-proto .ant-input-affix-wrapper > .ant-input,
+.op-proto .ant-input-affix-wrapper .ant-input {
+  height: auto !important;
+  min-height: 0;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent;
+}
+
+.op-proto .ant-input:not(textarea) {
+  height: var(--op-control-height);
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-input-number,
+.op-proto .ant-picker {
+  height: var(--op-control-height);
+  border-radius: var(--op-radius-control);
+}
+
+.op-proto .ant-select-selector {
+  border-radius: var(--op-radius-control) !important;
+}
+
+.op-proto .ant-select-single .ant-select-selector {
+  height: var(--op-control-height) !important;
+}
+
+.op-proto .ant-select-single .ant-select-selection-item,
+.op-proto .ant-select-single .ant-select-selection-placeholder {
+  line-height: 30px !important;
+}
+
+.op-proto .ant-radio-button-wrapper {
+  border-radius: 0;
+}
+
+.op-proto .ant-radio-button-wrapper:first-child {
+  border-radius: var(--op-radius-control) 0 0 var(--op-radius-control);
+}
+
+.op-proto .ant-radio-button-wrapper:last-child {
+  border-radius: 0 var(--op-radius-control) var(--op-radius-control) 0;
+}
+
+/* 颜色覆盖见 theme.css（必须全局，否则 body 上的弹层仍是 antd 蓝） */
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@17.0.2/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/min/moment.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/locale/zh-cn.js"></script>
+    <script src="https://unpkg.com/antd@4.24.8/dist/antd-with-locales.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.26.7/babel.min.js"></script>
+    <script type="text/babel">
+      const {useState} = React
+      const {
+        ConfigProvider,
+        Button,
+        Input,
+        Select,
+        DatePicker,
+        Table,
+        Pagination,
+        Modal,
+        Form,
+        Popconfirm,
+        Empty,
+        Spin,
+        Radio,
+        message,
+      } = antd
+      const zhCN = antd.locales && antd.locales.zh_CN
+      if (window.moment) window.moment.locale('zh-cn')
+
+      const STATUS_OPTS = [
+        {value: 'online', label: '已上线'},
+        {value: 'draft', label: '草稿'},
+        {value: 'offline', label: '已下线'},
+      ]
+      const MOCK = [
+        {key: '1', id: 201, title: '五一活动预告', status: '已上线', author: '运营小王', creator: '王敏', publishedAt: '2026-04-20 10:00:00'},
+        {key: '2', id: 202, title: '礼物墙改版说明', status: '草稿', author: '运营小李', creator: '李强', publishedAt: '—'},
+        {key: '3', id: 203, title: '停服维护公告', status: '已下线', author: '运营小张', creator: '张宁', publishedAt: '2026-03-01 00:00:00'},
+      ]
+      const formLayout = {labelCol: {span: 8}, wrapperCol: {span: 12}}
+      const fullWidth = {width: '100%'}
+
+      function App() {
+        const [tab, setTab] = useState('all')
+        const [view, setView] = useState('data')
+        const [visible, setVisible] = useState(false)
+        const [modalTitle, setModalTitle] = useState('新建')
+
+        const openCreate = () => { setModalTitle('新建'); setVisible(true) }
+        const openEdit = () => { setModalTitle('编辑'); setVisible(true) }
+
+        const columns = [
+          {title: '序号', dataIndex: 'id', width: 80, ellipsis: true},
+          {title: '公告标题', dataIndex: 'title', width: 220, ellipsis: true},
+          {title: '状态', dataIndex: 'status', width: 96, ellipsis: true},
+          {title: '发布人', dataIndex: 'author', width: 112, ellipsis: true},
+          {title: '创建人', dataIndex: 'creator', width: 112, ellipsis: true},
+          {title: '发布时间', dataIndex: 'publishedAt', width: 180, ellipsis: true},
+          {
+            title: '操作',
+            width: 180,
+            render: () => (
+              <div className="op-row-actions">
+                <Button type="primary" onClick={openEdit}>编辑</Button>
+                <Popconfirm title="确认删除？" okButtonProps={{danger: true}}>
+                  <Button danger>删除</Button>
+                </Popconfirm>
+              </div>
+            ),
+          },
+        ]
+
+        return (
+          <ConfigProvider locale={zhCN} getPopupContainer={(n) => (n && n.parentElement) || document.body}>
+            <div className="op-proto">
+              <header className="op-doc-meta">
+                <h1>公告管理</h1>
+                <p>OP 设计规范预览 · antd 4.24.8 · 假数据</p>
+                <div className="op-doc-flags">
+                  列表状态
+                  <Radio.Group value={view} buttonStyle="solid" onChange={(e) => setView(e.target.value)}>
+                    <Radio.Button value="data">有数据</Radio.Button>
+                    <Radio.Button value="empty">空态</Radio.Button>
+                    <Radio.Button value="loading">加载中</Radio.Button>
+                  </Radio.Group>
+                </div>
+              </header>
+              <div className="op-page-nav-layout">
+                <nav className="op-top-nav">
+                  <div className={'op-tab-item' + (tab === 'all' ? ' is-active' : '')} onClick={() => setTab('all')}>全部公告</div>
+                  <div className={'op-tab-item' + (tab === 'online' ? ' is-active' : '')} onClick={() => setTab('online')}>已上线</div>
+                  <div className={'op-tab-item' + (tab === 'draft' ? ' is-active' : '')} onClick={() => setTab('draft')}>草稿</div>
+                </nav>
+                <div className="op-page-nav-body">
+                  <div className="op-filter-card">
+                    <div className="op-filter-fields">
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">公告标题</span>
+                        <Input placeholder="请输入标题" allowClear style={{width: 160}} />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">公告内容</span>
+                        <Input placeholder="请输入内容关键词" allowClear style={{width: 160}} />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">创建人</span>
+                        <Input placeholder="请输入创建人" allowClear style={{width: 140}} />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">状态</span>
+                        <Select allowClear placeholder="请选择" options={STATUS_OPTS} style={{width: 160}} />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">发布人</span>
+                        <Input placeholder="请输入发布人" allowClear style={{width: 140}} />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">发布时间</span>
+                        <DatePicker showTime style={{width: 200}} />
+                      </div>
+                    </div>
+                    <div className="op-filter-action">
+                      <Button type="primary">查询</Button>
+                    </div>
+                  </div>
+                  <div className="op-table-card">
+                    <div className="op-table-toolbar op-table-toolbar--extra-only">
+                      <div className="op-table-toolbar-extra">
+                        <Button type="primary" onClick={openCreate}>新建</Button>
+                      </div>
+                    </div>
+                    {view === 'loading' ? (
+                      <div className="op-list-state"><Spin /></div>
+                    ) : view === 'empty' ? (
+                      <div className="op-list-state"><Empty description="暂无数据" /></div>
+                    ) : (
+                      <Table rowKey="key" pagination={false} dataSource={MOCK} columns={columns} scroll={{x: 1100}} size="middle" />
+                    )}
+                    <div className="op-table-pagination">
+                      <Pagination current={1} total={3} pageSize={20} showSizeChanger={false} showTotal={(t) => `共计 ${t} 条`} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Modal
+                title={modalTitle}
+                visible={visible}
+                width={700}
+                okText="确定"
+                cancelText="取消"
+                onCancel={() => setVisible(false)}
+                onOk={() => { message.success('仅预览，未提交'); setVisible(false) }}
+                destroyOnClose
+              >
+                <Form {...formLayout}>
+                  <Form.Item label="公告标题" required>
+                    <Input placeholder="请输入标题" style={fullWidth} />
+                  </Form.Item>
+                  <Form.Item label="状态" required>
+                    <Select options={STATUS_OPTS} placeholder="请选择" style={fullWidth} />
+                  </Form.Item>
+                  <Form.Item label="公告内容" required>
+                    <Input.TextArea rows={4} placeholder="请输入内容" style={fullWidth} />
+                  </Form.Item>
+                  <Form.Item label="发布时间">
+                    <DatePicker showTime style={fullWidth} />
+                  </Form.Item>
+                </Form>
+              </Modal>
+            </div>
+          </ConfigProvider>
+        )
+      }
+      ReactDOM.render(<App />, document.getElementById('root'))
+    </script>
+  </body>
+</html>

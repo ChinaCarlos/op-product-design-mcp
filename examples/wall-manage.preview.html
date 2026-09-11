@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>墙管理 · OP 原型</title>
+    <link rel="stylesheet" href="https://unpkg.com/antd@4.24.8/dist/antd.min.css" />
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/theme.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@17.0.2/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/min/moment.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/locale/zh-cn.js"></script>
+    <script src="https://unpkg.com/antd@4.24.8/dist/antd-with-locales.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.26.7/babel.min.js"></script>
+    <script type="text/babel">
+      const {useState} = React
+      const {
+        ConfigProvider,
+        Button,
+        Input,
+        Select,
+        DatePicker,
+        Table,
+        Pagination,
+        Modal,
+        Form,
+        InputNumber,
+        Popconfirm,
+        Empty,
+        Spin,
+        Card,
+        Descriptions,
+        Radio,
+        message,
+      } = antd
+      const zhCN = antd.locales && antd.locales.zh_CN
+
+      if (window.moment && window.moment.locale) {
+        window.moment.locale('zh-cn')
+      }
+
+      const TAB_OPTS = [
+        {value: 1, label: '礼物墙'},
+        {value: 2, label: '道具墙'},
+        {value: 3, label: '称号墙'},
+        {value: 0, label: '不上墙'},
+      ]
+      const SUB_OPTS = [
+        {value: 0, label: '全部'},
+        {value: 1, label: '经典'},
+        {value: 2, label: '活动'},
+      ]
+      const TYPE_OPTS = [
+        {value: 0, label: '自动上墙'},
+        {value: 1, label: '获得后上墙'},
+      ]
+      const MOCK = [
+        {
+          key: '1',
+          id: 101,
+          gift_id: 8801,
+          gift_name: '送你小花',
+          position: 1,
+          tab: '礼物墙',
+          sub_tab: '经典',
+          type: '自动上墙',
+          st: '2026-01-01 00:00:00',
+          et: '永久',
+        },
+        {
+          key: '2',
+          id: 102,
+          gift_id: 8802,
+          gift_name: '星光座驾',
+          position: 2,
+          tab: '道具墙',
+          sub_tab: '座驾',
+          type: '获得后上墙',
+          st: '2026-03-01 10:00:00',
+          et: '2026-12-31 23:59:59',
+        },
+        {
+          key: '3',
+          id: 103,
+          gift_id: 8803,
+          gift_name: '—',
+          position: 3,
+          tab: '称号墙',
+          sub_tab: '—',
+          type: '自动上墙',
+          st: '2026-04-01 00:00:00',
+          et: '永久',
+        },
+      ]
+
+      const formLayout = {labelCol: {span: 8}, wrapperCol: {span: 12}}
+      const fullWidth = {width: '100%'}
+
+      function GiftPreview() {
+        return (
+          <Form.Item label="礼物信息" {...formLayout}>
+            <Card size="small" className="op-modal-form-preview-card" bodyStyle={{padding: 0}}>
+              <Descriptions size="small" column={1} colon={false}>
+                <Descriptions.Item label="装扮名称">
+                  <span className="op-modal-form-preview-emphasis">送你小花</span>
+                </Descriptions.Item>
+                <Descriptions.Item label="装扮描述">—</Descriptions.Item>
+                <Descriptions.Item label="装扮类型">常规礼物</Descriptions.Item>
+                <Descriptions.Item label="货币种类">火花币</Descriptions.Item>
+                <Descriptions.Item label="装扮价格">500</Descriptions.Item>
+              </Descriptions>
+            </Card>
+          </Form.Item>
+        )
+      }
+
+      function App() {
+        const [view, setView] = useState('data')
+        const [visible, setVisible] = useState(false)
+        const [modalTitle, setModalTitle] = useState('新建')
+        const [showGift, setShowGift] = useState(false)
+
+        const openCreate = () => {
+          setModalTitle('新建')
+          setShowGift(false)
+          setVisible(true)
+        }
+        const openEdit = () => {
+          setModalTitle('编辑')
+          setShowGift(false)
+          setVisible(true)
+        }
+
+        const columns = [
+          {title: '序号', dataIndex: 'id', width: 80, ellipsis: true},
+          {title: '(礼物/装扮)id', dataIndex: 'gift_id', width: 128, ellipsis: true},
+          {title: '礼物名称', dataIndex: 'gift_name', width: 120, ellipsis: true},
+          {title: '礼物排序', dataIndex: 'position', width: 96, ellipsis: true},
+          {title: '是否上墙', dataIndex: 'tab', width: 96, ellipsis: true},
+          {title: '类型', dataIndex: 'sub_tab', width: 88, ellipsis: true},
+          {title: '展示逻辑', dataIndex: 'type', width: 112, ellipsis: true},
+          {title: '上线时间', dataIndex: 'st', width: 168, ellipsis: true},
+          {title: '下线时间', dataIndex: 'et', width: 168, ellipsis: true},
+          {
+            title: '操作',
+            width: 180,
+            render: () => (
+              <div className="op-row-actions">
+                <Button type="primary" onClick={openEdit}>
+                  编辑
+                </Button>
+                <Popconfirm
+                  title="确认删除？"
+                  okText="删除"
+                  cancelText="取消"
+                  okButtonProps={{danger: true}}
+                  onConfirm={() => message.success('仅预览：模拟删除')}
+                >
+                  <Button danger>
+                    删除
+                  </Button>
+                </Popconfirm>
+              </div>
+            ),
+          },
+        ]
+
+        return (
+          <ConfigProvider
+            locale={zhCN}
+            getPopupContainer={(n) => (n && n.parentElement) || document.body}
+          >
+            <div className="op-proto">
+              <header className="op-doc-meta">
+                <h1>墙管理</h1>
+                <p>antd 4.24.8 预览 · 筛选右侧查询 · 表右上新建 · 分页靠左 · 假数据不接接口</p>
+                <div className="op-doc-flags">
+                  列表状态
+                  <Radio.Group
+                    value={view}
+                    buttonStyle="solid"
+                    onChange={(e) => setView(e.target.value)}
+                  >
+                    <Radio.Button value="data">有数据</Radio.Button>
+                    <Radio.Button value="empty">空态</Radio.Button>
+                    <Radio.Button value="loading">加载中</Radio.Button>
+                  </Radio.Group>
+                </div>
+              </header>
+
+              <div className="op-page-nav-layout">
+                <nav className="op-top-nav">
+                  <div className="op-tab-item is-active">墙管理</div>
+                </nav>
+
+                <div className="op-page-nav-body">
+                  <div className="op-filter-card">
+                    <div className="op-filter-fields">
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">起始/截止日期</span>
+                        <DatePicker.RangePicker showTime />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">序号</span>
+                        <Input placeholder="输入id" style={{width: 140}} allowClear />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">礼物id</span>
+                        <Input placeholder="输入礼物id" style={{width: 140}} allowClear />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">礼物名称</span>
+                        <Input placeholder="输入礼物名称" style={{width: 160}} allowClear />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">是否上墙</span>
+                        <Select allowClear placeholder="请选择" options={TAB_OPTS} style={{width: 160}} />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">类型</span>
+                        <Select defaultValue={0} options={SUB_OPTS} style={{width: 160}} />
+                      </div>
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">展示规则</span>
+                        <Select allowClear placeholder="请选择" options={TYPE_OPTS} style={{width: 160}} />
+                      </div>
+                    </div>
+                    <div className="op-filter-action">
+                      <Button type="primary">查询</Button>
+                    </div>
+                  </div>
+
+                  <div className="op-table-card">
+                    <div className="op-table-toolbar op-table-toolbar--extra-only">
+                      <div className="op-table-toolbar-extra">
+                        <Button type="primary" onClick={openCreate}>
+                          新建
+                        </Button>
+                      </div>
+                    </div>
+
+                    {view === 'loading' ? (
+                      <div className="op-list-state">
+                        <Spin />
+                      </div>
+                    ) : view === 'empty' ? (
+                      <div className="op-list-state">
+                        <Empty description="暂无数据" />
+                      </div>
+                    ) : (
+                      <Table
+                        rowKey="key"
+                        pagination={false}
+                        dataSource={MOCK}
+                        columns={columns}
+                        scroll={{x: 1280}}
+                        size="middle"
+                      />
+                    )}
+
+                    <div className="op-table-pagination">
+                      <Pagination
+                        current={1}
+                        total={3}
+                        pageSize={20}
+                        showSizeChanger={false}
+                        showTotal={(t) => `共计 ${t} 条`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <Modal
+                title={modalTitle}
+                visible={visible}
+                width={700}
+                okText="确定"
+                cancelText="取消"
+                onCancel={() => setVisible(false)}
+                onOk={() => {
+                  message.success('仅预览，未提交')
+                  setVisible(false)
+                }}
+                destroyOnClose
+              >
+                <Form {...formLayout}>
+                  <Form.Item label="礼物Id" required>
+                    <Input
+                      placeholder="输入后展示礼物信息（预览）"
+                      style={fullWidth}
+                      onBlur={(e) => setShowGift(!!e.target.value)}
+                    />
+                  </Form.Item>
+                  {showGift ? <GiftPreview /> : null}
+                  <Form.Item label="礼物排序">
+                    <InputNumber style={fullWidth} />
+                  </Form.Item>
+                  <Form.Item label="是否上墙" required>
+                    <Select options={TAB_OPTS} style={fullWidth} placeholder="请选择" />
+                  </Form.Item>
+                  <Form.Item label="类型" required>
+                    <Select
+                      options={SUB_OPTS.filter((x) => x.value !== 0)}
+                      style={fullWidth}
+                      placeholder="请选择"
+                    />
+                  </Form.Item>
+                  <Form.Item label="展示规则" required>
+                    <Select options={TYPE_OPTS} style={fullWidth} placeholder="请选择" />
+                  </Form.Item>
+                  <Form.Item label="上线时间" required>
+                    <DatePicker showTime style={fullWidth} />
+                  </Form.Item>
+                  <Form.Item label="下线时间">
+                    <DatePicker showTime style={fullWidth} />
+                  </Form.Item>
+                </Form>
+              </Modal>
+            </div>
+          </ConfigProvider>
+        )
+      }
+
+      ReactDOM.render(<App />, document.getElementById('root'))
+    </script>
+  </body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title><!-- PAGE_TITLE --> · OP 原型</title>
+    <link rel="stylesheet" href="https://unpkg.com/antd@4.24.8/dist/antd.min.css" />
+    <!-- 交付时把 tokens.css + theme.css + layout.css 内联到 style -->
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/theme.css" />
+    <link rel="stylesheet" href="../styles/layout.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/react@17.0.2/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/min/moment.min.js"></script>
+    <script src="https://unpkg.com/moment@2.29.4/locale/zh-cn.js"></script>
+    <script src="https://unpkg.com/antd@4.24.8/dist/antd-with-locales.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.26.7/babel.min.js"></script>
+    <script type="text/babel">
+      const {useState} = React
+      const {
+        ConfigProvider, Button, Input, Table, Pagination,
+        Modal, Form, Popconfirm, Empty, Spin, Radio, message,
+      } = antd
+      const zhCN = antd.locales && antd.locales.zh_CN
+      if (window.moment) window.moment.locale('zh-cn')
+
+      function App() {
+        const [view, setView] = useState('data')
+        const [visible, setVisible] = useState(false)
+        const rows = [{key: '1', id: 1, name: '示例'}]
+        return (
+          <ConfigProvider locale={zhCN} getPopupContainer={(n) => (n && n.parentElement) || document.body}>
+            <div className="op-proto">
+              <header className="op-doc-meta">
+                <h1>{/* PAGE_TITLE */}</h1>
+                <p>OP 设计规范预览 · antd 4.24.8 · 假数据</p>
+                <div className="op-doc-flags">
+                  列表状态
+                  <Radio.Group value={view} buttonStyle="solid" onChange={(e) => setView(e.target.value)}>
+                    <Radio.Button value="data">有数据</Radio.Button>
+                    <Radio.Button value="empty">空态</Radio.Button>
+                    <Radio.Button value="loading">加载中</Radio.Button>
+                  </Radio.Group>
+                </div>
+              </header>
+              <div className="op-page-nav-layout">
+                <nav className="op-top-nav">
+                  <div className="op-tab-item is-active">Tab A</div>
+                </nav>
+                <div className="op-page-nav-body">
+                  <div className="op-filter-card">
+                    <div className="op-filter-fields">
+                      <div className="op-filter-item">
+                        <span className="op-filter-label">关键词</span>
+                        <Input placeholder="请输入" allowClear style={{width: 160}} />
+                      </div>
+                    </div>
+                    <div className="op-filter-action">
+                      <Button type="primary">查询</Button>
+                    </div>
+                  </div>
+                  <div className="op-table-card">
+                    <div className="op-table-toolbar op-table-toolbar--extra-only">
+                      <div className="op-table-toolbar-extra">
+                        <Button type="primary" onClick={() => setVisible(true)}>新建</Button>
+                      </div>
+                    </div>
+                    {view === 'loading' ? (
+                      <div className="op-list-state"><Spin /></div>
+                    ) : view === 'empty' ? (
+                      <div className="op-list-state"><Empty description="暂无数据" /></div>
+                    ) : (
+                      <Table
+                        rowKey="key"
+                        pagination={false}
+                        dataSource={rows}
+                        columns={[
+                          {title: '序号', dataIndex: 'id', width: 80, ellipsis: true},
+                          {title: '名称', dataIndex: 'name', ellipsis: true},
+                          {
+                            title: '操作',
+                            width: 180,
+                            render: () => (
+                              <div className="op-row-actions">
+                                <Button type="primary" onClick={() => setVisible(true)}>编辑</Button>
+                                <Popconfirm title="确认删除？" okButtonProps={{danger: true}}>
+                                  <Button danger>删除</Button>
+                                </Popconfirm>
+                              </div>
+                            ),
+                          },
+                        ]}
+                      />
+                    )}
+                    <div className="op-table-pagination">
+                      <Pagination current={1} total={1} pageSize={20} showSizeChanger={false} showTotal={(t) => `共计 ${t} 条`} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Modal title="新建" visible={visible} width={700} okText="确定" cancelText="取消" onCancel={() => setVisible(false)} onOk={() => setVisible(false)}>
+                <Form labelCol={{span: 8}} wrapperCol={{span: 12}}>
+                  <Form.Item label="名称" required>
+                    <Input style={{width: '100%'}} />
+                  </Form.Item>
+                </Form>
+              </Modal>
+            </div>
+          </ConfigProvider>
+        )
+      }
+      ReactDOM.render(<App />, document.getElementById('root'))
+    </script>
+  </body>
+</html>

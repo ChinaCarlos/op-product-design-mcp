@@ -1,0 +1,27 @@
+{
+  "name": "op-product-design-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Spark OP 原型 MCP：按 Skill 与视觉规范生成可预览 HTML，并热更新内置浏览器。",
+  "bin": {
+    "op-prototype-mcp": "./dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsc --watch",
+    "smoke": "npm run build && node scripts/smoke.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^4.6.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.2",
+    "typescript": "^5.9.2"
+  }
+}
