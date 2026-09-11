@@ -1,6 +1,6 @@
 {
   "name": "op-product-design-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "description": "MCP server that generates Spark OP HTML prototypes with live preview and export",
   "author": "lazykids119 <lazykids520@gmail.com>",
@@ -43,12 +43,12 @@
   },
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run build",
+    "prepare": "tsc",
+    "prepublishOnly": "tsc",
     "start": "node dist/cli.js",
     "dev": "tsc --watch",
-    "smoke": "npm run build && node scripts/smoke.mjs",
-    "install-skill": "node dist/cli.js install-skill",
+    "smoke": "tsc && node scripts/smoke.mjs",
+    "install-skill": "node dist/cli.js install",
     "publish:npm": "npm publish --access public --registry https://registry.npmjs.org/"
   },
   "engines": {
@@ -61,5 +61,6 @@
   "devDependencies": {
     "@types/node": "^22.20.2",
     "typescript": "^5.9.2"
-  }
+  },
+  "packageManager": "pnpm@10.21.0"
 }

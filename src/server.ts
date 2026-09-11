@@ -25,6 +25,7 @@ import {
 } from './prototypes.js';
 import { normalizeSlug } from './slug.js';
 import { formatValidation, validatePrototypeHtml } from './validate.js';
+import { ensureSkillsInstalled } from './install-skill.js';
 
 function text(data: unknown) {
   const value = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
@@ -268,6 +269,7 @@ server.registerTool(
 );
 
 export async function startMcpServer() {
+  ensureSkillsInstalled();
   const transport = new StdioServerTransport();
   await server.connect(transport);
 }

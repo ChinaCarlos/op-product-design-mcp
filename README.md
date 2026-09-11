@@ -12,11 +12,28 @@ MCP **不自己画页面**。宿主 AI 读 Skill 写 HTML；MCP 是唯一出口�
 - 仓库：https://github.com/ChinaCarlos/op-product-design-mcp
 - **完整接入说明（Codex / Cursor / Claude Code / Trae / Qoder / CodeBuddy / WorkBuddy）：** [docs/usage.md](docs/usage.md)
 
-每人在自己电脑跑。预览是本机 `127.0.0.1:5179`，不是云端。先装 MCP，再装 Skill。
+## 环境要求（先装 Node.js）
+
+本工具跑在你自己的电脑上，预览是本机 `127.0.0.1:5179`，不是云端。
+
+**必须先安装 Node.js ≥ 18**（会自带 `npm` / `npx`）。没装 Node 时，MCP 和 Skill 的安装命令都执行不了。
+
+- 中文下载页：https://nodejs.org/zh-cn/download
+- 英文官网：https://nodejs.org/
+- macOS 也可用：`brew install node`
+
+装完新开终端检查：
+
+```bash
+node -v    # 应 ≥ v18
+npx -v
+```
+
+用的人不必装 pnpm、也不必 clone 仓库。改本仓库才需要 pnpm。配置里不要钉死版本。
 
 ## 快速开始
 
-需要 Node.js ≥ 18。配置里不要钉死版本，始终用最新包。
+先接 MCP，再装 Skill。Skill **两种安装方式都支持**，选一种即可。
 
 **1. 接入 MCP（任选一）**
 
@@ -55,22 +72,33 @@ Cursor / Trae / WorkBuddy / 多数编辑器，用户级或项目级 `mcp.json`�
 | CodeBuddy | Settings → MCP |
 | WorkBuddy | `~/.workbuddy/mcp.json` 或 `.workbuddy/mcp.json` |
 
-逐步截图级说明见 [docs/usage.md](docs/usage.md)。
+逐步说明见 [docs/usage.md](docs/usage.md)。
 
-**2. 安装 Skill**
+**2. 安装 Skill（两种方式都支持）**
 
-```bash
-npx -y op-product-design-mcp install-skill
-```
+效果相同：自动拷到 Codex 的 `~/.agents/skills`，以及本机已有的 Cursor / Claude / Trae / CodeBuddy / WorkBuddy 目录。
 
-默认：`~/.agents/skills/spark-op-prototype`（Codex 会扫这里）。
+方式一，npx：
 
 ```bash
-npx -y op-product-design-mcp install-skill .cursor/skills
-npx -y op-product-design-mcp install-skill .claude/skills
+npx -y op-product-design-mcp install
 ```
 
-装完请新开一轮对话。
+方式二，curl 脚本（类似 brew / oh-my-zsh）：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/ChinaCarlos/op-product-design-mcp/main/scripts/install.sh | bash
+```
+
+只配 MCP、忘了跑上面两条时，服务启动也会静默注入一次。
+
+指定目录：
+
+```bash
+npx -y op-product-design-mcp install .cursor/skills
+```
+
+兼容旧命令：`npx -y op-product-design-mcp install-skill`。装完请新开一轮对话。
 
 **3. 使用**
 
@@ -107,16 +135,16 @@ Resources：`op-prototype://skill`、`visual`、`template`、`example`、CSS。
 ## 本仓库开发
 
 ```bash
-npm install
-npm run build
+pnpm install
+pnpm build
 node dist/cli.js          # MCP stdio
-npx -y op-product-design-mcp install-skill
-npm run smoke
+npx -y op-product-design-mcp install
+pnpm smoke
 ```
 
 规范包：`skills/spark-op-prototype/SKILL.md`、`references/visual.md`、`styles/`、`templates/preview.html`、`examples/wall-manage.preview.html`。
 
-环境变量：`OP_PROTOTYPE_OUT` 覆盖工作区根目录；`OP_PROTOTYPE_ROOT` 覆盖包根（一般不用）。
+环境变量：`OP_PROTOTYPE_OUT` 覆盖工作区根目录；`OP_PROTOTYPE_ROOT` 覆盖包根（一般不用）；`OP_PROTOTYPE_SKIP_SKILL_INSTALL=1` 关闭 MCP 启动时自动注入 Skill。
 
 ## License
 
