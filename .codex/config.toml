@@ -1,4 +1,3 @@
 [mcp_servers.op-prototype]
 command = "node"
-args = ["dist/server.js"]
-cwd = "/Users/carlos/Desktop/op-product-design-mcp"
+args = ["dist/cli.js"]

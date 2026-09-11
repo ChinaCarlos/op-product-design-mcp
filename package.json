@@ -1,17 +1,55 @@
 {
   "name": "op-product-design-mcp",
-  "version": "1.0.0",
-  "private": true,
+  "version": "1.0.1",
   "type": "module",
-  "description": "Spark OP 原型 MCP：按 Skill 与视觉规范生成可预览 HTML，并热更新内置浏览器。",
+  "description": "MCP server that generates Spark OP HTML prototypes with live preview and export",
+  "author": "lazykids119 <lazykids520@gmail.com>",
+  "license": "MIT",
   "bin": {
-    "op-prototype-mcp": "./dist/server.js"
+    "op-product-design-mcp": "dist/cli.js",
+    "op-prototype-mcp": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "skills",
+    "references",
+    "styles",
+    "templates",
+    "examples",
+    "README.md",
+    "SKILL.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChinaCarlos/op-product-design-mcp.git"
+  },
+  "homepage": "https://github.com/ChinaCarlos/op-product-design-mcp",
+  "bugs": {
+    "url": "https://github.com/ChinaCarlos/op-product-design-mcp/issues"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "cursor",
+    "codex",
+    "prototype",
+    "antd",
+    "agent"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/cli.js",
     "dev": "tsc --watch",
-    "smoke": "npm run build && node scripts/smoke.mjs"
+    "smoke": "npm run build && node scripts/smoke.mjs",
+    "install-skill": "node dist/cli.js install-skill",
+    "publish:npm": "npm publish --access public --registry https://registry.npmjs.org/"
   },
   "engines": {
     "node": ">=18"

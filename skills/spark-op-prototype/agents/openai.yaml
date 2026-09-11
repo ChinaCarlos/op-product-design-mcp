@@ -1,0 +1,6 @@
+interface:
+  display_name: Spark OP 原型
+  short_description: 按火花 OP 规范生成可预览 HTML，经 MCP 预览与导出
+
+policy:
+  allow_implicit_invocation: true

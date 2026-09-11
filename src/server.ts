@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { existsSync, readFileSync } from 'node:fs';
@@ -268,5 +267,7 @@ server.registerTool(
   async () => text(bundledCss()),
 );
 
-const transport = new StdioServerTransport();
-await server.connect(transport);
+export async function startMcpServer() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+}
