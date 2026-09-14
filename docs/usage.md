@@ -421,6 +421,7 @@ Resources：`op-prototype://skill`、`visual`、`template`、`example`、CSS。
 | `OP_PROTOTYPE_OUT` | 覆盖工作区根目录（稿写到 `<该目录>/out`） |
 | `OP_PROTOTYPE_ROOT` | 覆盖包根目录（一般不用） |
 | `OP_PROTOTYPE_SKIP_SKILL_INSTALL` | 设为 `1` 时 MCP 启动不自动注入 Skill |
+| `OP_PROTOTYPE_PORT` | 覆盖默认预览端口 5179 |
 
 ---
 
@@ -442,6 +443,7 @@ Resources：`op-prototype://skill`、`visual`、`template`、`example`、CSS。
 
 ```bash
 pnpm smoke
+pnpm smoke:multi
 ```
 
 ---
@@ -478,3 +480,17 @@ node dist/cli.js
 ```
 
 两个终端的 MCP 都能正常工作，但只有 Leader 占用 5179 端口。
+
+选举与 RPC 细节见 [architecture.md](architecture.md)。
+
+---
+
+## 12. 版本
+
+当前 npm 包为 **1.1.0**。配置里不要钉死版本，始终用 `npx -y op-product-design-mcp`。
+
+| 版本 | 说明 |
+|------|------|
+| **1.1.0** | 多 IDE 自动 Leader/Follower 选举，共用预览端口，Leader 退出后可接管 |
+| 1.0.2 | 一条命令安装 Skill；仓库改用 pnpm |
+| 1.0.0 | 首个可 `npx` 安装的 MCP |

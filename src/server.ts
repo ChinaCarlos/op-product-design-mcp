@@ -214,7 +214,7 @@ export async function startMcpServer(election: Election) {
     setupRpcHandler(election, handlers);
   }
 
-  const server = new McpServer({ name: 'op-prototype', version: '1.0.0' }, { instructions: WORKFLOW });
+  const server = new McpServer({ name: 'op-prototype', version: '1.1.0' }, { instructions: WORKFLOW });
 
   for (const resource of resources) {
     server.registerResource(

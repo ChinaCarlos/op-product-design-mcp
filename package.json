@@ -1,6 +1,6 @@
 {
   "name": "op-product-design-mcp",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "type": "module",
   "description": "MCP server that generates Spark OP HTML prototypes with live preview and export",
   "author": "lazykids119 <lazykids520@gmail.com>",

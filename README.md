@@ -152,11 +152,14 @@ pnpm build
 node dist/cli.js          # MCP stdio
 npx -y op-product-design-mcp install
 pnpm smoke
+pnpm smoke:multi          # 多进程 Leader/Follower
 ```
 
 规范包：`skills/spark-op-prototype/SKILL.md`、`references/visual.md`、`styles/`、`templates/preview.html`、`examples/wall-manage.preview.html`。
 
-环境变量：`OP_PROTOTYPE_OUT` 覆盖工作区根目录；`OP_PROTOTYPE_ROOT` 覆盖包根（一般不用）；`OP_PROTOTYPE_SKIP_SKILL_INSTALL=1` 关闭 MCP 启动时自动注入 Skill。
+架构细节见 [docs/architecture.md](docs/architecture.md)。
+
+环境变量：`OP_PROTOTYPE_OUT` 覆盖工作区根目录；`OP_PROTOTYPE_ROOT` 覆盖包根（一般不用）；`OP_PROTOTYPE_SKIP_SKILL_INSTALL=1` 关闭 MCP 启动时自动注入 Skill；`OP_PROTOTYPE_PORT` 覆盖预览端口。
 
 ## 多 IDE 协调（Leader / Follower）
 
@@ -209,6 +212,14 @@ node dist/cli.js
 | 变量 | 作用 |
 |------|------|
 | `OP_PROTOTYPE_PORT` | 覆盖默认端口 5179 |
+
+## 更新记录
+
+| 版本 | 说明 |
+|------|------|
+| **1.1.0** | 多 IDE 同时运行时自动 Leader/Follower 选举，共用 5179 预览口，Leader 退出后可接管 |
+| 1.0.2 | 一条命令安装 Skill，改用 pnpm 管理依赖 |
+| 1.0.0 | 首个 npm 包：MCP 落盘、预览、导出 |
 
 ## License
 
