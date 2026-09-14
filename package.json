@@ -48,6 +48,7 @@
     "start": "node dist/cli.js",
     "dev": "tsc --watch",
     "smoke": "tsc && node scripts/smoke.mjs",
+    "smoke:multi": "tsc && node scripts/smoke-multi-process.mjs",
     "install-skill": "node dist/cli.js install",
     "publish:npm": "npm publish --access public --registry https://registry.npmjs.org/"
   },

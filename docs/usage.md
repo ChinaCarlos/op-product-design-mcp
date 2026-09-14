@@ -433,12 +433,48 @@ Resources：`op-prototype://skill`、`visual`、`template`、`example`、CSS。
 | 预览打不开 | 是否走了 MCP `create_prototype`；看返回的 `http://127.0.0.1:5179/...`，不要用 `file://` |
 | 稿写进奇怪目录 / 找不到 out | 不要给 MCP 配别人的绝对 `cwd`；确认当前打开的是目标项目 |
 | Skill 不触发 | 是否跑过 `install` 或 MCP 已自动注入，且**新开对话**；对话里直接说「按 OP 原型 Skill」或 `@spark-op-prototype` |
-| 端口被占用 | 本服务只复用 5179。若 5179 被别的程序占用，先停掉那个程序 |
+| 端口被占用（非本 MCP） | 若 5179 被其他程序占用，先停掉那个程序。多个 AI IDE 同时运行本 MCP 时会自动选举，不会冲突 |
 | 校验失败 | 按返回信息改 HTML 后再 `update_prototype`，不要绕开 MCP 写盘 |
 | 1.0.0 的 npx 行为异常 | 用未钉死的 `npx -y op-product-design-mcp`，会落到带正确 `bin` 的最新版 |
+| 多 IDE 下预览不刷新 | 检查 Leader 进程是否还在运行；Follower 通过 Leader 广播 reload |
 
 本仓库开发自检：
 
 ```bash
 pnpm smoke
 ```
+
+---
+
+## 11. 多 IDE 协调（Leader / Follower）
+
+多个 AI IDE（Cursor、Codex、Claude Code、Trae、Qoder、CodeBuddy、WorkBuddy 等）可同时安装并运行本 MCP。通过 Leader/Follower 选举机制，避免端口冲突：
+
+- 第一个启动的 MCP 进程成为 **Leader**，绑定端口 5179
+- 后续启动的 MCP 进程成为 **Follower**，通过 Leader 协调预览
+- Leader 退出后，Follower 会自动尝试接管成为新 Leader
+
+### 工作流程
+
+1. 进程启动时尝试绑定 5179 端口
+2. 成功 → 成为 Leader；失败 → 检查端口是否被本服务占用
+3. 是本服务 → 成为 Follower；不是 → 报错
+
+### Follower 行为
+
+- **本地执行**：`get_brief`、`get_prototype`、`validate_prototype`、`get_bundled_css`、文件读写
+- **通过 Leader**：`create_prototype`、`update_prototype`、`start_preview`、`list_prototypes`、`export_prototype` 的预览 URL 和热更新
+
+### 验证
+
+```bash
+# 终端 1
+node dist/cli.js
+# [election] elected as leader
+
+# 终端 2
+node dist/cli.js
+# [election] following existing leader
+```
+
+两个终端的 MCP 都能正常工作，但只有 Leader 占用 5179 端口。
