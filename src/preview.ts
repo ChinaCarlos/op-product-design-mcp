@@ -2,8 +2,11 @@ import { existsSync, readdirSync, readFileSync, watch } from 'node:fs';
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { buildExportHtml } from './export.js';
 import { OUT_DIR, prototypeFile } from './paths.js';
+import type { PrototypeInfo, RPCRequest, RPCResponse } from './types.js';
 
 const SERVICE = 'op-prototype-preview';
+
+export type RPCHandler = (tool: string, params?: Record<string, unknown>) => Promise<unknown>;
 
 const LIVE_SCRIPT = `
 <script>
@@ -74,9 +77,14 @@ export class PreviewRuntime {
   private watcher: ReturnType<typeof watch> | null = null;
   private attached = false;
   port = 0;
+  private rpcHandler: RPCHandler | null = null;
 
   get origin(): string {
     return `http://127.0.0.1:${this.port}`;
+  }
+
+  setRpcHandler(handler: RPCHandler | null): void {
+    this.rpcHandler = handler;
   }
 
   urlFor(slug: string): string {
@@ -115,6 +123,40 @@ export class PreviewRuntime {
     this.attached = false;
     this.watchOut();
     return this.port;
+  }
+
+  async tryBindAsLeader(): Promise<boolean> {
+    if (this.port && !this.attached) return true;
+    if (this.port && this.attached) return false;
+    
+    const port = this.preferredPort();
+    
+    if (await this.isOurPreview(port)) {
+      return false;
+    }
+    
+    this.server = createServer((req, res) => this.handle(req, res));
+    try {
+      this.port = await this.listen(port);
+      this.attached = false;
+      this.watchOut();
+      return true;
+    } catch (error) {
+      this.server = null;
+      if (isAddrInUse(error)) {
+        if (await this.isOurPreview(port)) {
+          return false;
+        }
+        throw new Error(
+          `预览端口 ${port} 已被其他程序占用（非本 MCP）。请关掉占用进程或设置 OP_PROTOTYPE_PORT。`,
+        );
+      }
+      throw error;
+    }
+  }
+
+  isAttached(): boolean {
+    return this.attached;
   }
 
   async stop(): Promise<void> {
@@ -184,7 +226,7 @@ export class PreviewRuntime {
     const url = new URL(req.url || '/', this.origin || `http://127.0.0.1:${this.preferredPort()}`);
     if (url.pathname === '/__health') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-      res.end(JSON.stringify({ ok: true, service: SERVICE, port: this.port }));
+      res.end(JSON.stringify({ ok: true, service: SERVICE, port: this.port, role: 'leader' }));
       return;
     }
 
@@ -194,6 +236,17 @@ export class PreviewRuntime {
       for (const client of this.clients) client.write(payload);
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify({ ok: true, slug: slug || '*' }));
+      return;
+    }
+
+    if (url.pathname === '/__prototypes') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ ok: true, prototypes: this.getPrototypeList() }));
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/__rpc') {
+      this.handleRpc(req, res);
       return;
     }
 
@@ -276,6 +329,74 @@ export class PreviewRuntime {
       'Content-Disposition': `attachment; filename="${slug}.html"`,
     });
     res.end(html);
+  }
+
+  private getPrototypeList(): PrototypeInfo[] {
+    if (!existsSync(OUT_DIR)) return [];
+    return readdirSync(OUT_DIR)
+      .filter((name) => existsSync(prototypeFile(name)))
+      .map((slug) => {
+        const html = readFileSync(prototypeFile(slug), 'utf8');
+        const titleMatch = html.match(/<title>([^<]+)<\/title>/i);
+        const title = titleMatch
+          ? titleMatch[1].replace(/\s*·\s*OP 原型$/, '').trim() || slug
+          : slug;
+        return {
+          slug,
+          title,
+          file: prototypeFile(slug),
+          previewUrl: `http://127.0.0.1:${this.port || this.preferredPort()}/${slug}/`,
+        };
+      });
+  }
+
+  private handleRpc(req: IncomingMessage, res: ServerResponse): void {
+    if (!this.rpcHandler) {
+      res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ ok: false, error: 'No RPC handler registered' } satisfies RPCResponse));
+      return;
+    }
+
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk) => chunks.push(chunk as Buffer));
+    req.on('end', () => {
+      try {
+        const body = Buffer.concat(chunks).toString('utf8');
+        const rpc = JSON.parse(body) as RPCRequest;
+        if (!rpc.tool) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: 'Missing tool name' } satisfies RPCResponse));
+          return;
+        }
+
+        this.rpcHandler!(rpc.tool, rpc.params)
+          .then((data) => {
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: true, data } satisfies RPCResponse));
+          })
+          .catch((err) => {
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(
+              JSON.stringify({
+                ok: false,
+                error: err instanceof Error ? err.message : String(err),
+              } satisfies RPCResponse),
+            );
+          });
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(
+          JSON.stringify({
+            ok: false,
+            error: err instanceof Error ? err.message : 'Invalid JSON body',
+          } satisfies RPCResponse),
+        );
+      }
+    });
+    req.on('error', (err) => {
+      res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ ok: false, error: err.message } satisfies RPCResponse));
+    });
   }
 }
 

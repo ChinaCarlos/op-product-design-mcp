@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { installSkill } from './install-skill.js';
 import { startMcpServer } from './server.js';
+import { Election } from './election.js';
+import { preview } from './preview.js';
 
 const cmd = process.argv[2];
 
@@ -8,6 +10,8 @@ function help() {
   process.stdout.write(`op-product-design-mcp
 
 无参数                 启动 MCP stdio，并自动把 Skill 注入到已检测到的客户端目录
+                       支持 Leader/Follower 模式：多个 MCP 进程会自动选举，
+                       只有 Leader 占用 5179 端口，Follower 通过 Leader 协调预览
 install / install-skill [dir]
                        一条命令安装 Skill。不传 dir 时自动拷到：
                        ~/.agents/skills（Codex）以及本机已有的
@@ -43,4 +47,35 @@ if (cmd) {
   process.exit(1);
 }
 
-await startMcpServer();
+const port = preview.preferredPort();
+let election: Election | null = null;
+
+async function shutdown(): Promise<void> {
+  console.error('[op-prototype] shutting down...');
+  if (election) {
+    await election.stop();
+    election = null;
+  }
+}
+
+async function main(): Promise<void> {
+  console.error(`[op-prototype] starting on port ${port}`);
+
+  election = new Election(port);
+  await election.start();
+
+  await startMcpServer(election);
+}
+
+process.on('SIGINT', () => {
+  shutdown().finally(() => process.exit(0));
+});
+
+process.on('SIGTERM', () => {
+  shutdown().finally(() => process.exit(0));
+});
+
+main().catch((err) => {
+  console.error('[op-prototype] fatal error:', err);
+  process.exit(1);
+});
